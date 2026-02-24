@@ -1,18 +1,13 @@
-import Database from 'better-sqlite3';
-import path from 'path';
+import { Pool } from 'pg';
 
-// Connect to the local SQLite database
-// In production, we'll store this in the root or a data folder.
-const dbPath = path.resolve(process.cwd(), 'database.db');
-const db = new Database(dbPath, { verbose: console.log });
-db.pragma('journal_mode = WAL');
+const db = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
 
-// Initialize tables if they don't exist
-const initializeDb = () => {
-  // Public Users table
-  db.exec(`
+export const initializeDb = async () => {
+  await db.query(`
     CREATE TABLE IF NOT EXISTS users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       name TEXT NOT NULL,
       surname TEXT NOT NULL,
       tc_no TEXT NOT NULL,
@@ -22,18 +17,18 @@ const initializeDb = () => {
       gender TEXT NOT NULL,
       smoke_start_date TEXT NOT NULL,
       cigarettes_per_day INTEGER NOT NULL,
-      data_agreement BOOLEAN NOT NULL DEFAULT 1,
+      data_agreement BOOLEAN NOT NULL DEFAULT true,
       last_login_date TEXT,
       daily_login_count INTEGER DEFAULT 0,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
 
     CREATE TABLE IF NOT EXISTS daily_messages (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       target_date TEXT NOT NULL,
       age_group TEXT NOT NULL,
       message TEXT NOT NULL,
-      is_ai BOOLEAN DEFAULT 0,
+      is_ai BOOLEAN DEFAULT false,
       UNIQUE(target_date, age_group)
     );
 
@@ -43,14 +38,12 @@ const initializeDb = () => {
     );
 
     CREATE TABLE IF NOT EXISTS government_credentials (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       name TEXT NOT NULL,
       surname TEXT NOT NULL,
       tc_no TEXT NOT NULL UNIQUE
     );
   `);
 };
-
-initializeDb();
 
 export default db;

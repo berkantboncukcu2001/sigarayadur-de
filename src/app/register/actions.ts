@@ -24,29 +24,41 @@ export async function registerUser(formData: FormData) {
     }
 
     // Government Credentials Check
-    const govCheck = db.prepare("SELECT * FROM government_credentials WHERE name = ? COLLATE NOCASE AND surname = ? COLLATE NOCASE AND tc_no = ?").get(name, surname, tc_no);
+    const { rows: govRows } = await db.query(
+        "SELECT * FROM government_credentials WHERE LOWER(name) = LOWER($1) AND LOWER(surname) = LOWER($2) AND tc_no = $3",
+        [name, surname, tc_no]
+    );
+    const govCheck = govRows[0];
     if (!govCheck) {
         return { success: false, error: "Sistemde böyle bir T.C. Kimlik doğrulaması bulunamadı. Lütfen Adınızı, Soyadınızı ve TC numaranızı tam olarak resmi kayıtlardaki gibi girdiğinizden emin olun." };
     }
 
     // Duplicate Check logic: Name + Surname + TC No (already handled by unique constraint, but good for UX)
-    const existingUser = db.prepare("SELECT * FROM users WHERE name = ? COLLATE NOCASE AND surname = ? COLLATE NOCASE AND dob = ?").get(name, surname, dob);
+    const { rows: userRows } = await db.query(
+        "SELECT * FROM users WHERE LOWER(name) = LOWER($1) AND LOWER(surname) = LOWER($2) AND dob = $3",
+        [name, surname, dob]
+    );
+    const existingUser = userRows[0];
 
     if (existingUser) {
         return { success: false, error: "Bu isim, soyisim ve doğum tarihine sahip bir kullanıcı zaten mevcut." };
     }
 
     // Username Duplicate Check
-    const existingUsername = db.prepare("SELECT * FROM users WHERE username = ? COLLATE NOCASE").get(username);
+    const { rows: usernameRows } = await db.query(
+        "SELECT * FROM users WHERE LOWER(username) = LOWER($1)",
+        [username]
+    );
+    const existingUsername = usernameRows[0];
     if (existingUsername) {
         return { success: false, error: "Bu kullanıcı adı zaten alınmış." };
     }
 
     try {
-        const info = db.prepare(`
+        await db.query(`
       INSERT INTO users (name, surname, tc_no, username, password, dob, gender, smoke_start_date, cigarettes_per_day, data_agreement)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
-    `).run(name, surname, tc_no, username, password, dob, gender, smoke_start_date, Number(cigarettes_per_day));
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, true)
+    `, [name, surname, tc_no, username, password, dob, gender, smoke_start_date, Number(cigarettes_per_day)]);
 
         // Optional: Log them in automatically
         // const cookieStore = await cookies();
@@ -54,6 +66,7 @@ export async function registerUser(formData: FormData) {
 
         return { success: true };
     } catch (err) {
+        console.error(err);
         return { success: false, error: "Veritabanı hatası oluştu." };
     }
 }

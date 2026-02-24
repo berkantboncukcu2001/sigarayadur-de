@@ -20,14 +20,14 @@ export default async function AdminDashboard() {
         );
     }
 
-    // Fetch users from SQLite
-    const users = db.prepare("SELECT * FROM users ORDER BY created_at DESC").all() as any[];
+    // Fetch users from PostgreSQL
+    const { rows: users } = await db.query("SELECT * FROM users ORDER BY created_at DESC");
 
     // Fetch settings and daily messages for historical feedbacks
-    const settingRow = db.prepare("SELECT value FROM settings WHERE key = 'ai_toggle'").get() as any;
-    const isAiOn = settingRow?.value === "true";
+    const { rows: settingRows } = await db.query("SELECT value FROM settings WHERE key = 'ai_toggle'");
+    const isAiOn = settingRows[0]?.value === "true";
 
-    const allMessages = db.prepare("SELECT * FROM daily_messages").all() as any[];
+    const { rows: allMessages } = await db.query("SELECT * FROM daily_messages");
     const messagesObj: Record<string, string> = {};
     for (const msg of allMessages) {
         messagesObj[`${msg.target_date}|${msg.age_group}`] = msg.message;

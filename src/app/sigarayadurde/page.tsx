@@ -43,7 +43,9 @@ export default async function DashboardPage() {
         redirect("/login");
     }
 
-    const user = db.prepare("SELECT * FROM users WHERE id = ?").get(userId) as any;
+    const { rows: userRows } = await db.query("SELECT * FROM users WHERE id = $1", [userId]);
+    const user = userRows[0];
+
     if (!user) {
         redirect("/login");
     }
@@ -59,14 +61,14 @@ export default async function DashboardPage() {
         showPopup = true;
         const ageGroup = getAgeGroup(age);
 
-        const settingRow = db.prepare("SELECT value FROM settings WHERE key = 'ai_toggle'").get() as any;
-        const isAiOn = settingRow?.value === "true";
+        const { rows: settingRows } = await db.query("SELECT value FROM settings WHERE key = 'ai_toggle'");
+        const isAiOn = settingRows[0]?.value === "true";
 
         if (isAiOn) {
             displayMessage = generateAIPopup(ageGroup);
         } else {
-            const messageRow = db.prepare("SELECT message FROM daily_messages WHERE target_date = ? AND age_group = ?").get(todayStr, ageGroup) as any;
-            displayMessage = messageRow?.message || "Tebrikler! Sigarasız yeni bir gün.";
+            const { rows: messageRows } = await db.query("SELECT message FROM daily_messages WHERE target_date = $1 AND age_group = $2", [todayStr, ageGroup]);
+            displayMessage = messageRows[0]?.message || "Tebrikler! Sigarasız yeni bir gün.";
         }
     }
 

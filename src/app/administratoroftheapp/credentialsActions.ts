@@ -8,23 +8,26 @@ export async function fetchCredentials(page: number = 1, searchQuery: string = "
 
     let query = "SELECT * FROM government_credentials";
     let countQuery = "SELECT COUNT(*) as total FROM government_credentials";
-    const params: string[] = [];
+    const params: any[] = [];
+    let paramIndex = 1;
 
     if (searchQuery) {
-        query += " WHERE name LIKE ? OR surname LIKE ? OR tc_no LIKE ?";
-        countQuery += " WHERE name LIKE ? OR surname LIKE ? OR tc_no LIKE ?";
+        query += ` WHERE name ILIKE $${paramIndex} OR surname ILIKE $${paramIndex + 1} OR tc_no ILIKE $${paramIndex + 2}`;
+        countQuery += ` WHERE name ILIKE $${paramIndex} OR surname ILIKE $${paramIndex + 1} OR tc_no ILIKE $${paramIndex + 2}`;
         const wrappedSearch = `%${searchQuery}%`;
         params.push(wrappedSearch, wrappedSearch, wrappedSearch);
+        paramIndex += 3;
     }
 
-    query += " LIMIT ? OFFSET ?";
+    query += ` LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
+    const queryParams = [...params, limit, offset];
 
-    const students = db.prepare(query).all(...params, limit, offset) as any[];
-    const countRes = db.prepare(countQuery).get(...params) as any;
+    const { rows: students } = await db.query(query, queryParams);
+    const { rows: countRes } = await db.query(countQuery, params);
 
     return {
         data: students,
-        totalPages: Math.ceil(countRes.total / limit),
-        totalCount: countRes.total
+        totalPages: Math.ceil(parseInt(countRes[0].total) / limit),
+        totalCount: parseInt(countRes[0].total)
     };
 }

@@ -12,7 +12,8 @@ export async function loginUser(formData: FormData) {
         return { success: false, error: "Kullanıcı adı ve şifre zorunludur." };
     }
 
-    const user = db.prepare("SELECT * FROM users WHERE username = ? COLLATE NOCASE AND password = ?").get(username, password) as any;
+    const { rows } = await db.query("SELECT * FROM users WHERE LOWER(username) = LOWER($1) AND password = $2", [username, password]);
+    const user = rows[0];
 
     if (!user) {
         return { success: false, error: "Kullanıcı adı veya şifre hatalı." };
@@ -23,9 +24,9 @@ export async function loginUser(formData: FormData) {
     const todayStr = `${gmt3Date.getFullYear()}-${String(gmt3Date.getMonth() + 1).padStart(2, '0')}-${String(gmt3Date.getDate()).padStart(2, '0')}`;
 
     if (user.last_login_date !== todayStr) {
-        db.prepare("UPDATE users SET last_login_date = ?, daily_login_count = 1 WHERE id = ?").run(todayStr, user.id);
+        await db.query("UPDATE users SET last_login_date = $1, daily_login_count = 1 WHERE id = $2", [todayStr, user.id]);
     } else {
-        db.prepare("UPDATE users SET daily_login_count = daily_login_count + 1 WHERE id = ?").run(user.id);
+        await db.query("UPDATE users SET daily_login_count = daily_login_count + 1 WHERE id = $1", [user.id]);
     }
 
     try {

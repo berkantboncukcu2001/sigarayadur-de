@@ -3,14 +3,12 @@ import db from '@/lib/db';
 
 export async function GET() {
     try {
-        const countRes = db.prepare("SELECT COUNT(*) as count FROM government_credentials").get() as any;
-        if (countRes.count > 0) {
+        const { rows } = await db.query("SELECT COUNT(*) as count FROM government_credentials");
+        const countRes = rows[0];
+        if (parseInt(countRes.count) > 0) {
             return NextResponse.json({ message: "Already seeded", count: countRes.count });
         }
 
-        const stmt = db.prepare("INSERT INTO government_credentials (name, surname, tc_no) VALUES (?, ?, ?)");
-
-        // Generating some dummy data
         const names = ["Aleyna", "Ayşe", "Fatma", "Ahmet", "Mehmet", "Ali", "Veli", "Kemal", "Mustafa", "Can", "Deniz", "Ebru", "Gizem", "Hakan"];
         const surnames = ["Kaya", "Yılmaz", "Çelik", "Demir", "Yıldız", "Şahin", "Öztürk", "Aydın", "Özdemir", "Arslan"];
 
@@ -21,7 +19,7 @@ export async function GET() {
             const tc = Math.floor(10000000000 + Math.random() * 90000000000).toString(); // 11 digit random
 
             try {
-                stmt.run(n, s, tc);
+                await db.query("INSERT INTO government_credentials (name, surname, tc_no) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING", [n, s, tc]);
                 count++;
             } catch (e) {
                 // ignore unique constraint failures on random generation
@@ -30,7 +28,7 @@ export async function GET() {
 
         // Add a specific one for testing
         try {
-            stmt.run("Berkant", "Boncukçu", "12345678901");
+            await db.query("INSERT INTO government_credentials (name, surname, tc_no) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING", ["Berkant", "Boncukçu", "12345678901"]);
         } catch (e) { }
 
         return NextResponse.json({ message: "Successfully seeded", added: count });

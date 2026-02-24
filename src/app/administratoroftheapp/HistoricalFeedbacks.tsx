@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { saveDailyMessageAction, toggleAiModeAction } from "./calendarActions";
+import { useState, useRef, useEffect } from "react";
+import { saveDailyMessageAction, toggleAiModeAction, saveAllDailyMessagesAction } from "./calendarActions";
 
 const AGE_GROUPS = [
     "10-20", "20-30", "30-40", "40-50", "50-60", "60-70", "70>"
@@ -15,8 +15,19 @@ export default function HistoricalFeedbacks({
     messagesObj: Record<string, string> // key: "YYYY-MM-DD|AGE", value: "message"
 }) {
     const [isAiOn, setIsAiOn] = useState(initialAiMode);
+
+    // Initialize to today
     const [currentDate, setCurrentDate] = useState(new Date());
     const [selectedDateStr, setSelectedDateStr] = useState<string | null>(null);
+    const [successMsg, setSuccessMsg] = useState("");
+
+    // Set selected date to today on mount
+    useEffect(() => {
+        const y = currentDate.getFullYear();
+        const m = String(currentDate.getMonth() + 1).padStart(2, '0');
+        const d = String(currentDate.getDate()).padStart(2, '0');
+        setSelectedDateStr(`${y}-${m}-${d}`);
+    }, []);
 
     // Helper to change month
     const changeMonth = (offset: number) => {
@@ -47,8 +58,30 @@ export default function HistoricalFeedbacks({
         if (!selectedDateStr) return;
         const formData = new FormData(formElement);
         const text = formData.get("message")?.toString() || "";
-        await saveDailyMessageAction(selectedDateStr, ageGroup, text);
-        // Optimistic UI could be added here, but Server Action validation will run
+        const res = await saveDailyMessageAction(selectedDateStr, ageGroup, text);
+        if (res.success) {
+            setSuccessMsg("Başarıyla kaydedildi.");
+            setTimeout(() => setSuccessMsg(""), 3000);
+        }
+    };
+
+    const handleSaveAll = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        if (!selectedDateStr) return;
+
+        const formData = new FormData(e.currentTarget);
+        const allMsgs: { ageGroup: string, message: string }[] = [];
+
+        AGE_GROUPS.forEach(age => {
+            const text = formData.get(`message_${age}`)?.toString() || "";
+            allMsgs.push({ ageGroup: age, message: text });
+        });
+
+        const res = await saveAllDailyMessagesAction(selectedDateStr, allMsgs);
+        if (res.success) {
+            setSuccessMsg("Tüm yaş grupları başarıyla kaydedildi.");
+            setTimeout(() => setSuccessMsg(""), 3000);
+        }
     };
 
     return (
@@ -143,39 +176,55 @@ export default function HistoricalFeedbacks({
                         <p style={{ opacity: 0.7, textAlign: "center", marginTop: "2rem" }}>Mesaj girmek veya görmek için soldaki takvimden bir gün seçiniz.</p>
                     ) : (
                         <div>
-                            <h3 style={{ marginBottom: "1.5rem", borderBottom: "1px solid var(--glass-border)", paddingBottom: "0.5rem" }}>
-                                {selectedDateStr.split("-").reverse().join(".")} Mesajları
-                            </h3>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem", borderBottom: "1px solid var(--glass-border)", paddingBottom: "0.5rem" }}>
+                                <h3 style={{ margin: 0 }}>
+                                    {selectedDateStr.split("-").reverse().join(".")} Mesajları
+                                </h3>
+                                {successMsg && <span style={{ color: "var(--success)", fontWeight: "bold", fontSize: "0.9rem" }}>{successMsg}</span>}
+                            </div>
 
-                            <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem", maxHeight: "350px", overflowY: "auto", paddingRight: "0.5rem" }}>
+                            <form onSubmit={handleSaveAll} style={{ display: "flex", flexDirection: "column", gap: "1.5rem", maxHeight: "350px", overflowY: "auto", paddingRight: "0.5rem" }}>
                                 {AGE_GROUPS.map(age => {
                                     const dbKey = `${selectedDateStr}|${age}`;
                                     const currentMsg = messagesObj[dbKey] || "";
 
                                     return (
-                                        <form
-                                            key={age}
-                                            onSubmit={(e) => { e.preventDefault(); handleSaveMessage(age, e.currentTarget); }}
-                                            style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
-                                        >
+                                        <div key={age} style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                                             <label style={{ fontWeight: "bold", color: "var(--primary-hover)" }}>{age} Yaş Grubu:</label>
                                             <div style={{ display: "flex", gap: "0.5rem" }}>
                                                 <input
                                                     type="text"
-                                                    name="message"
+                                                    name={`message_${age}`}
                                                     defaultValue={currentMsg}
                                                     placeholder={`${age} yaş grubu için mesaj girin...`}
                                                     className="form-input"
                                                     style={{ flex: 1 }}
                                                 />
-                                                <button type="submit" className="btn-primary" style={{ width: "auto", padding: "0.5rem 1rem" }}>
+                                                <button
+                                                    type="button"
+                                                    onClick={(e) => {
+                                                        const form = (e.target as HTMLElement).closest('div')?.querySelector('input') as HTMLInputElement;
+                                                        if (!form) return;
+                                                        const tempForm = document.createElement("form");
+                                                        const inputDesc = document.createElement("input");
+                                                        inputDesc.name = "message";
+                                                        inputDesc.value = form.value;
+                                                        tempForm.appendChild(inputDesc);
+                                                        handleSaveMessage(age, tempForm);
+                                                    }}
+                                                    className="btn-primary"
+                                                    style={{ width: "auto", padding: "0.5rem 1rem" }}
+                                                >
                                                     Kaydet
                                                 </button>
                                             </div>
-                                        </form>
+                                        </div>
                                     )
                                 })}
-                            </div>
+                                <button type="submit" className="btn-primary" style={{ marginTop: "1rem" }}>
+                                    Hepsini Kaydet
+                                </button>
+                            </form>
                         </div>
                     )}
                 </div>

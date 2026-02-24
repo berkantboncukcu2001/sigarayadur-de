@@ -56,10 +56,10 @@ export default async function DashboardPage() {
     let showPopup = false;
     let displayMessage = "";
     let age = calculateAge(user.dob);
+    let ageGroup = getAgeGroup(age);
 
     if (user.last_login_date === todayStr) {
         showPopup = true;
-        const ageGroup = getAgeGroup(age);
 
         const { rows: settingRows } = await db.query("SELECT value FROM settings WHERE key = 'ai_toggle'");
         const isAiOn = settingRows[0]?.value === "true";
@@ -68,7 +68,7 @@ export default async function DashboardPage() {
             displayMessage = generateAIPopup(ageGroup);
         } else {
             const { rows: messageRows } = await db.query("SELECT message FROM daily_messages WHERE target_date = $1 AND age_group = $2", [todayStr, ageGroup]);
-            displayMessage = messageRows[0]?.message || "Tebrikler! Sigarasız yeni bir gün.";
+            displayMessage = messageRows[0]?.message || `${ageGroup} yaş grubu için bugüne özel bir mesaj bulunamadı.`;
         }
     }
 

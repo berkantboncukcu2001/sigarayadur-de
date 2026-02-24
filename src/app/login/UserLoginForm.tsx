@@ -13,17 +13,23 @@ export default function UserLoginForm() {
         setLoading(true);
         setError("");
 
-        const formData = new FormData(e.currentTarget);
-        const result = await loginUser(formData);
+        try {
+            const formData = new FormData(e.currentTarget);
+            const result = await loginUser(formData);
 
-        if (result.success) {
-            setSuccess(true);
-            // Wait then reload or redirect
-            setTimeout(() => {
-                window.location.reload();
-            }, 1500);
-        } else {
-            setError(result.error || "Giriş başarısız.");
+            if (result.success) {
+                setSuccess(true);
+                // Wait then reload or redirect
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                setError(result.error || "Giriş başarısız.");
+                setLoading(false);
+            }
+        } catch (err: any) {
+            console.error(err);
+            setError("Giriş esnasında sunucu ile iletişim kurulamadı. Veritabanı bağlantınızı kontrol ediniz.");
             setLoading(false);
         }
     };

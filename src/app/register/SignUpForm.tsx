@@ -42,24 +42,30 @@ export default function SignUpForm() {
         }
 
         setLoading(true);
-        const formData = new FormData(e.currentTarget);
-        formData.set("cigarettes_per_day", cigValue);
-        formData.set("dob", dob);
-        formData.set("smoke_start_date", smokeStart);
+        try {
+            const formData = new FormData(e.currentTarget);
+            formData.set("cigarettes_per_day", cigValue);
+            formData.set("dob", dob);
+            formData.set("smoke_start_date", smokeStart);
 
-        const result = await registerUser(formData);
+            const result = await registerUser(formData);
 
-        if (result.success) {
-            setSuccess(true);
-            // Wait a moment then redirect to login
-            setTimeout(() => {
-                window.location.href = "/sigarayadurde/login";
-            }, 2000);
-        } else {
-            setError(result.error || "Bilinmeyen bir hata oluştu.");
-            if (result.error?.includes("mevcut")) {
-                alert("DİKKAT: " + result.error); // Fallback alert window as requested
+            if (result.success) {
+                setSuccess(true);
+                // Wait a moment then redirect to login
+                setTimeout(() => {
+                    window.location.href = "/login";
+                }, 2000);
+            } else {
+                setError(result.error || "Bilinmeyen bir hata oluştu.");
+                if (result.error?.includes("mevcut")) {
+                    alert("DİKKAT: " + result.error); // Fallback alert window as requested
+                }
+                setLoading(false);
             }
+        } catch (err: any) {
+            console.error(err);
+            setError("Kayıt işlemi sırasında sunucu hatası oluştu. Veritabanı bağliantınızı kontrol ediniz.");
             setLoading(false);
         }
     };

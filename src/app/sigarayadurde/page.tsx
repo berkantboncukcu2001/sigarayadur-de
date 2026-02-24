@@ -4,9 +4,21 @@ import db from "@/lib/db";
 import DailyPopup from "./DailyPopup";
 
 function calculateAge(dobStr: string) {
+    if (!dobStr) return 0;
     const parts = dobStr.split("/");
     if (parts.length !== 3) return 0;
-    const dob = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+
+    let day = parseInt(parts[0]);
+    let month = parseInt(parts[1]);
+    const year = parseInt(parts[2]);
+
+    if (month > 12) {
+        // input was MM/DD/YYYY
+        month = parseInt(parts[0]);
+        day = parseInt(parts[1]);
+    }
+
+    const dob = new Date(year, month - 1, day);
     const diff = Date.now() - dob.getTime();
     return Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
 }

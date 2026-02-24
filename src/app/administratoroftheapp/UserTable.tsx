@@ -66,10 +66,20 @@ export default function UserTable({ users }: { users: any[] }) {
                             </thead>
                             <tbody>
                                 {currentUsers.map((u, index) => {
-                                    // Calculate Age
-                                    const parts = u.dob.split("/");
-                                    const dobDate = parts.length === 3 ? new Date(`${parts[2]}-${parts[1]}-${parts[0]}`) : new Date();
-                                    const age = Math.floor((Date.now() - dobDate.getTime()) / (1000 * 60 * 60 * 24 * 365.25));
+                                    let age = 0;
+                                    const parts = (u.dob || "").split("/");
+                                    if (parts.length === 3) {
+                                        let day = parseInt(parts[0]);
+                                        let month = parseInt(parts[1]);
+                                        const year = parseInt(parts[2]);
+
+                                        if (month > 12) {
+                                            month = parseInt(parts[0]);
+                                            day = parseInt(parts[1]);
+                                        }
+                                        const dobDate = new Date(year, month - 1, day);
+                                        age = Math.floor((Date.now() - dobDate.getTime()) / (1000 * 60 * 60 * 24 * 365.25));
+                                    }
 
                                     return (
                                         <tr key={u.id} style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>

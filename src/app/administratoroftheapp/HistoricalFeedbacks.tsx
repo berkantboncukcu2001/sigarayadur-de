@@ -157,7 +157,7 @@ export default function HistoricalFeedbacks({
                                         borderRadius: "8px",
                                         background: isSelected ? "var(--primary-glow)" : "var(--input-bg)",
                                         border: `1px solid ${isSelected ? "var(--primary)" : "var(--input-border)"}`,
-                                        color: "white",
+                                        color: isSelected ? "white" : "inherit",
                                         cursor: "pointer",
                                         textAlign: "center",
                                         transition: "all 0.2s"

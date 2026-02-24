@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { fetchCredentials } from "./credentialsActions";
+import { useState, useEffect, useRef } from "react";
+import Papa from "papaparse";
+import { fetchCredentials, bulkImportCredentials } from "./credentialsActions";
 
 type Credential = {
     id: number;
@@ -12,6 +13,64 @@ type Credential = {
 
 export default function CredentialsTable() {
     const [isVisible, setIsVisible] = useState(false);
+
+    // Bulk Upload States
+    const [loadingBulk, setLoadingBulk] = useState(false);
+    const [bulkMessage, setBulkMessage] = useState("");
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setLoadingBulk(true);
+        setBulkMessage("Dosya okunuyor...");
+
+        Papa.parse(file, {
+            header: true,
+            skipEmptyLines: true,
+            complete: async (results) => {
+                const records: any[] = [];
+                results.data.forEach((row: any) => {
+                    const vals = Object.values(row);
+                    const name = row.Ad || row.Name || row.name || row.ad || row.AD || vals[0];
+                    const surname = row.Soyad || row.Surname || row.surname || row["Soy Ad"] || row.SOYAD || vals[1];
+                    const tc_no = row.TC || row.TC_No || row.tc_no || row["TC Kimlik"] || row["TC Kimlik No"] || vals[2];
+
+                    if (name && surname && tc_no) {
+                        records.push({ name: String(name).trim(), surname: String(surname).trim(), tc_no: String(tc_no).trim() });
+                    }
+                });
+
+                if (records.length === 0) {
+                    setBulkMessage("Uygun veri bulunamadı. Lütfen CSV dosyasının sütun başlıklarını kontrol ediniz.");
+                    setLoadingBulk(false);
+                    return;
+                }
+
+                setBulkMessage(`${records.length} kayıt veritabanına gönderiliyor...`);
+
+                try {
+                    const res = await bulkImportCredentials(records);
+                    if (res.success) {
+                        setBulkMessage(`Başarılı! ${res.count} yeni kişi sisteme eklendi.`);
+                        loadData(1, searchQuery); // Reload table
+                    } else {
+                        setBulkMessage(`Hata: ${res.error}`);
+                    }
+                } catch (err: any) {
+                    setBulkMessage(`Sunucu hatası: ${err.message}`);
+                }
+                setLoadingBulk(false);
+                // Reset file input
+                if (fileInputRef.current) fileInputRef.current.value = "";
+            },
+            error: (err: any) => {
+                setBulkMessage(`Dosya okuma hatası: ${err.message}`);
+                setLoadingBulk(false);
+            }
+        });
+    };
 
     const [data, setData] = useState<Credential[]>([]);
     const [page, setPage] = useState(1);
@@ -89,10 +148,32 @@ export default function CredentialsTable() {
 
     if (!isVisible) {
         return (
-            <div style={{ marginBottom: "2rem" }}>
+            <div style={{ marginBottom: "2rem", display: "flex", gap: "1rem" }}>
                 <button onClick={() => setIsVisible(true)} className="btn-primary" style={{ width: "auto" }}>
                     Credentials Data (Gizli Veriler)
                 </button>
+                <div style={{ position: "relative" }}>
+                    <input
+                        type="file"
+                        accept=".csv"
+                        ref={fileInputRef}
+                        onChange={handleFileUpload}
+                        style={{ display: "none" }}
+                    />
+                    <button
+                        onClick={() => fileInputRef.current?.click()}
+                        className="btn-primary"
+                        style={{ width: "auto", background: "var(--primary-hover)" }}
+                        disabled={loadingBulk}
+                    >
+                        {loadingBulk ? "Yükleniyor..." : "Toplu Veri Yükle (CSV)"}
+                    </button>
+                    {bulkMessage && (
+                        <div style={{ position: "absolute", top: "110%", left: 0, whiteSpace: "nowrap", fontSize: "0.85rem", color: "var(--light)", background: "var(--glass-bg)", padding: "0.5rem", borderRadius: "8px", border: "1px solid var(--glass-border)", zIndex: 10 }}>
+                            {bulkMessage}
+                        </div>
+                    )}
+                </div>
             </div>
         );
     }

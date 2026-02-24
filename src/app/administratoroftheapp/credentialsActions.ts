@@ -31,3 +31,37 @@ export async function fetchCredentials(page: number = 1, searchQuery: string = "
         totalCount: parseInt(countRes[0].total)
     };
 }
+
+export async function bulkImportCredentials(records: { name: string, surname: string, tc_no: string }[]) {
+    if (!records || records.length === 0) return { success: false, error: "Yüklenecek veri bulunamadı." };
+
+    const batchSize = 1000;
+    let insertedRows = 0;
+
+    try {
+        for (let i = 0; i < records.length; i += batchSize) {
+            const batch = records.slice(i, i + batchSize);
+            const values: any[] = [];
+
+            const placeholders = batch.map((r, index) => {
+                const offset = index * 3;
+                values.push(r.name, r.surname, r.tc_no);
+                return `($${offset + 1}, $${offset + 2}, $${offset + 3})`;
+            }).join(', ');
+
+            const query = `
+                INSERT INTO government_credentials (name, surname, tc_no)
+                VALUES ${placeholders}
+                ON CONFLICT (tc_no) DO NOTHING
+            `;
+
+            const res = await db.query(query, values);
+            insertedRows += res.rowCount || 0;
+        }
+
+        return { success: true, count: insertedRows };
+    } catch (e: any) {
+        console.error(e);
+        return { success: false, error: e.message };
+    }
+}

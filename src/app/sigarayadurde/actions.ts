@@ -23,7 +23,13 @@ export async function registerUser(formData: FormData) {
         return { success: false, error: "TC Kimlik Numaranız 11 haneli rakamlardan oluşmalıdır." };
     }
 
-    // Duplicate Check logic: Name + Surname + DOB
+    // Government Credentials Check
+    const govCheck = db.prepare("SELECT * FROM government_credentials WHERE name = ? COLLATE NOCASE AND surname = ? COLLATE NOCASE AND tc_no = ?").get(name, surname, tc_no);
+    if (!govCheck) {
+        return { success: false, error: "Sistemde böyle bir T.C. Kimlik doğrulaması bulunamadı. Lütfen Adınızı, Soyadınızı ve TC numaranızı tam olarak resmi kayıtlardaki gibi girdiğinizden emin olun." };
+    }
+
+    // Duplicate Check logic: Name + Surname + TC No (already handled by unique constraint, but good for UX)
     const existingUser = db.prepare("SELECT * FROM users WHERE name = ? COLLATE NOCASE AND surname = ? COLLATE NOCASE AND dob = ?").get(name, surname, dob);
 
     if (existingUser) {

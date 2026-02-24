@@ -110,7 +110,7 @@ export default function HistoricalFeedbacks({
                         <button onClick={() => changeMonth(1)} className="btn-primary" style={{ padding: "0.5rem", width: "auto" }}>&rarr;</button>
                     </div>
 
-                    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", maxHeight: "400px", overflowY: "auto", paddingRight: "0.5rem" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))", gap: "0.5rem", maxHeight: "400px", overflowY: "auto", paddingRight: "0.5rem", alignContent: "start" }}>
                         {days.map(dayStr => {
                             const [y, m, d] = dayStr.split("-");
                             const displayDate = `${d}.${m}.${y}`;
@@ -126,7 +126,7 @@ export default function HistoricalFeedbacks({
                                         border: `1px solid ${isSelected ? "var(--primary)" : "var(--input-border)"}`,
                                         color: "white",
                                         cursor: "pointer",
-                                        textAlign: "left",
+                                        textAlign: "center",
                                         transition: "all 0.2s"
                                     }}
                                 >

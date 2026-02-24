@@ -41,6 +41,13 @@ const initializeDb = () => {
       key TEXT PRIMARY KEY,
       value TEXT NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS government_credentials (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      surname TEXT NOT NULL,
+      tc_no TEXT NOT NULL UNIQUE
+    );
   `);
 };
 

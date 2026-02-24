@@ -4,6 +4,7 @@ import LoginForm from "./LoginForm";
 import LogoutButton from "./LogoutButton";
 import UserTable from "./UserTable";
 import HistoricalFeedbacks from "./HistoricalFeedbacks";
+import CredentialsTable from "./CredentialsTable";
 
 export const dynamic = "force-dynamic"; // Ensure it always fetches fresh data
 
@@ -40,6 +41,7 @@ export default async function AdminDashboard() {
             </div>
 
             <UserTable users={users} />
+            <CredentialsTable />
             <HistoricalFeedbacks initialAiMode={isAiOn} messagesObj={messagesObj} />
         </main>
     );

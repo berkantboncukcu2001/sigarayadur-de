@@ -2,6 +2,11 @@ import { Pool } from 'pg';
 
 const db = new Pool({
   connectionString: process.env.POSTGRES_URL || process.env.DATABASE_URL || "postgresql://neondb_owner:npg_SyiKhQIG95Cu@ep-rough-mountain-agez6653-pooler.c-2.eu-central-1.aws.neon.tech/neondb?sslmode=require",
+  connectionTimeoutMillis: 5000,
+  idleTimeoutMillis: 10000,
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
 
 export const initializeDb = async () => {

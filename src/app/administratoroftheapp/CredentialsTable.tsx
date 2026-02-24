@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Papa from "papaparse";
-import { fetchCredentials, bulkImportCredentials } from "./credentialsActions";
+import { fetchCredentials, bulkImportCredentials, addSingleCredential } from "./credentialsActions";
 
 type Credential = {
     id: number;
@@ -18,6 +18,12 @@ export default function CredentialsTable() {
     const [loadingBulk, setLoadingBulk] = useState(false);
     const [bulkMessage, setBulkMessage] = useState("");
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Single Insert States
+    const [showSingleModal, setShowSingleModal] = useState(false);
+    const [singleInput, setSingleInput] = useState({ name: "", surname: "", tc_no: "" });
+    const [singleLoading, setSingleLoading] = useState(false);
+    const [singleMessage, setSingleMessage] = useState("");
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -71,7 +77,28 @@ export default function CredentialsTable() {
             }
         });
     };
-
+    const handleSingleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setSingleLoading(true);
+        setSingleMessage("");
+        try {
+            const res = await addSingleCredential(singleInput.name, singleInput.surname, singleInput.tc_no);
+            if (res.success) {
+                setSingleMessage("Kişi başarıyla eklendi.");
+                setSingleInput({ name: "", surname: "", tc_no: "" });
+                loadData(1, searchQuery); // Reload table
+                setTimeout(() => {
+                    setShowSingleModal(false);
+                    setSingleMessage("");
+                }, 1500);
+            } else {
+                setSingleMessage(res.error || "Hata oluştu.");
+            }
+        } catch (err: any) {
+            setSingleMessage(`Sunucu hatası: ${err.message}`);
+        }
+        setSingleLoading(false);
+    };
     const [data, setData] = useState<Credential[]>([]);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -174,6 +201,13 @@ export default function CredentialsTable() {
                         </div>
                     )}
                 </div>
+                <button
+                    onClick={() => setShowSingleModal(true)}
+                    className="btn-primary"
+                    style={{ width: "auto" }}
+                >
+                    Kişisel Veri Ekle
+                </button>
             </div>
         );
     }
@@ -323,6 +357,68 @@ export default function CredentialsTable() {
                             </>
                         )}
 
+                    </div>
+                </div>
+            )}
+
+            {/* Add Single Credential Modal */}
+            {showSingleModal && (
+                <div style={{
+                    position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+                    background: "rgba(0,0,0,0.8)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 9999
+                }}>
+                    <div className="glass-panel" style={{ padding: "2rem", width: "90%", maxWidth: "450px", textAlign: "left" }}>
+                        <h3 style={{ marginBottom: "1rem" }}>Kişisel Veri Ekle</h3>
+                        <p style={{ opacity: 0.8, marginBottom: "1.5rem", fontSize: "0.9rem" }}>Sisteme anında manuel olarak tek bir kimlik onay verisi ekleyin.</p>
+
+                        <form onSubmit={handleSingleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                            <div>
+                                <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "bold" }}>Ad</label>
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    value={singleInput.name}
+                                    onChange={(e) => setSingleInput({ ...singleInput, name: e.target.value })}
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "bold" }}>Soy Ad</label>
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    value={singleInput.surname}
+                                    onChange={(e) => setSingleInput({ ...singleInput, surname: e.target.value })}
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "bold" }}>TC Kimlik No</label>
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    value={singleInput.tc_no}
+                                    onChange={(e) => setSingleInput({ ...singleInput, tc_no: e.target.value })}
+                                    maxLength={11}
+                                    required
+                                />
+                            </div>
+
+                            {singleMessage && (
+                                <div style={{ color: singleMessage.includes("Hata") ? "var(--error)" : "var(--success)", fontSize: "0.9em", textAlign: "center" }}>
+                                    {singleMessage}
+                                </div>
+                            )}
+
+                            <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
+                                <button type="button" onClick={() => setShowSingleModal(false)} className="btn-primary" style={{ background: "transparent", border: "1px solid var(--input-border)" }}>
+                                    İptal
+                                </button>
+                                <button type="submit" disabled={singleLoading} className="btn-primary">
+                                    {singleLoading ? "Kaydediliyor..." : "Kaydet"}
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             )}

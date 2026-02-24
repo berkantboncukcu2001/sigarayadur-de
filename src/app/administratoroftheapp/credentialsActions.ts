@@ -65,3 +65,26 @@ export async function bulkImportCredentials(records: { name: string, surname: st
         return { success: false, error: e.message };
     }
 }
+
+export async function addSingleCredential(name: string, surname: string, tc_no: string) {
+    if (!name || !surname || !tc_no) return { success: false, error: "Bütün alanları doldurunuz." };
+
+    try {
+        const query = `
+            INSERT INTO government_credentials (name, surname, tc_no)
+            VALUES ($1, $2, $3)
+            ON CONFLICT (tc_no) DO NOTHING
+            RETURNING id
+        `;
+        const res = await db.query(query, [name.trim(), surname.trim(), tc_no.trim()]);
+
+        if (res.rowCount === 0) {
+            return { success: false, error: "Bu TC Kimlik Numarası zaten sistemde kayıtlı." };
+        }
+
+        return { success: true };
+    } catch (e: any) {
+        console.error(e);
+        return { success: false, error: e.message };
+    }
+}

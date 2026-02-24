@@ -198,7 +198,7 @@ export default function SignUpForm() {
                 </button>
 
                 <p style={{ textAlign: "center", marginTop: "1.5rem", fontSize: "0.9rem", opacity: 0.8 }}>
-                    Zaten hesabınız var mı? <a href="/sigarayadurde/login" style={{ color: "var(--primary-hover)", textDecoration: "none", fontWeight: "bold" }}>Giriş Yap</a>
+                    Zaten hesabınız var mı? <a href="/login" style={{ color: "var(--primary-hover)", textDecoration: "none", fontWeight: "bold" }}>Giriş Yap</a>
                 </p>
             </form>
         </div>

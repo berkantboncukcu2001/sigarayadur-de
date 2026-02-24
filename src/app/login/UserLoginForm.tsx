@@ -79,7 +79,7 @@ export default function UserLoginForm() {
                 </button>
 
                 <p style={{ textAlign: "center", marginTop: "1.5rem", fontSize: "0.9rem", opacity: 0.8 }}>
-                    Hesabınız yok mu? <a href="/sigarayadurde" style={{ color: "var(--primary-hover)", textDecoration: "none", fontWeight: "bold" }}>Kayıt Ol</a>
+                    Hesabınız yok mu? <a href="/register" style={{ color: "var(--primary-hover)", textDecoration: "none", fontWeight: "bold" }}>Kayıt Ol</a>
                 </p>
             </form>
         </div>

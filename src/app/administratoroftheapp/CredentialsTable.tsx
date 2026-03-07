@@ -229,7 +229,7 @@ export default function CredentialsTable() {
             <div style={{ marginBottom: "1rem" }}>
                 <input
                     type="text"
-                    placeholder="Ad, Soyad veya TC Kimlik No Ara..."
+                    placeholder="Ad, Soyad veya Öğrenci Numarası Ara..."
                     className="form-input"
                     value={searchQuery}
                     onChange={handleSearch}
@@ -242,7 +242,7 @@ export default function CredentialsTable() {
                         <tr style={{ borderBottom: "1px solid var(--glass-border)" }}>
                             <th style={{ padding: "1rem", color: "var(--primary-hover)" }}>Ad</th>
                             <th style={{ padding: "1rem", color: "var(--primary-hover)" }}>Soy Ad</th>
-                            <th style={{ padding: "1rem", color: "var(--primary-hover)" }}>TC Kimlik No</th>
+                            <th style={{ padding: "1rem", color: "var(--primary-hover)" }}>Öğrenci Numarası</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -309,7 +309,7 @@ export default function CredentialsTable() {
                                 <div style={{ background: "var(--input-bg)", padding: "1.5rem", borderRadius: "12px", border: "1px solid var(--input-border)", textAlign: "left", display: "flex", flexDirection: "column", gap: "1rem" }}>
                                     <div><strong style={{ opacity: 0.7 }}>Ad:</strong> <span style={{ fontSize: "1.2rem", display: "block" }}>{getSelectedCredential()?.name}</span></div>
                                     <div><strong style={{ opacity: 0.7 }}>Soyad:</strong> <span style={{ fontSize: "1.2rem", display: "block" }}>{getSelectedCredential()?.surname}</span></div>
-                                    <div><strong style={{ opacity: 0.7 }}>TC Kimlik No:</strong> <span style={{ fontSize: "1.2rem", display: "block" }}>{getSelectedCredential()?.tc_no}</span></div>
+                                    <div><strong style={{ opacity: 0.7 }}>Öğrenci Numarası:</strong> <span style={{ fontSize: "1.2rem", display: "block" }}>{getSelectedCredential()?.tc_no}</span></div>
                                 </div>
                                 <button
                                     onClick={() => {
@@ -393,13 +393,13 @@ export default function CredentialsTable() {
                                 />
                             </div>
                             <div>
-                                <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "bold" }}>TC Kimlik No</label>
+                                <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "bold" }}>Öğrenci Numarası</label>
                                 <input
                                     type="text"
                                     className="form-input"
                                     value={singleInput.tc_no}
                                     onChange={(e) => setSingleInput({ ...singleInput, tc_no: e.target.value })}
-                                    maxLength={11}
+                                    maxLength={15}
                                     required
                                 />
                             </div>

@@ -29,10 +29,9 @@ export default function SignUpForm() {
         e.preventDefault();
         setError("");
 
-        // Password validation (min 8 chars, 1 letter, 1 number)
-        const passRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
-        if (!passRegex.test(password)) {
-            setError("Şifreniz en az 8 karakter uzunluğunda olmalı ve hem harf hem de rakam içermelidir.");
+        // Password validation (Must match default password for registration)
+        if (password !== "userpassword123") {
+            setError("Kayıt olabilmek için kurum tarafından verilen şifreyi (userpassword123) girmelisiniz.");
             return;
         }
 
@@ -98,21 +97,17 @@ export default function SignUpForm() {
                     </div>
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "1rem", marginBottom: "1rem" }}>
                     <div className="form-group">
-                        <label className="form-label">Kullanıcı Adı (Sisteme giriş için)</label>
-                        <input type="text" name="username" className="form-input" required />
-                    </div>
-                    <div className="form-group">
-                        <label className="form-label">TC Kimlik No</label>
+                        <label className="form-label">Öğrenci Numarası</label>
                         <input
                             type="text"
-                            name="tc_no"
+                            name="student_no"
                             className="form-input"
-                            maxLength={11}
-                            pattern="^[0-9]{11}$"
-                            title="Lütfen 11 haneli TC Kimlik numaranızı giriniz"
-                            onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity("Lütfen 11 haneli TC Kimlik numaranızı giriniz")}
+                            maxLength={15}
+                            pattern="^[0-9]+$"
+                            title="Lütfen cep/öğrenci numaranızı giriniz"
+                            onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity("Lütfen geçerli bir öğrenci numarası giriniz")}
                             onInput={(e) => (e.target as HTMLInputElement).setCustomValidity("")}
                             required
                         />
@@ -121,23 +116,25 @@ export default function SignUpForm() {
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
                     <div className="form-group">
-                        <label className="form-label">Şifre</label>
+                        <label className="form-label">Kurum Şifresi</label>
                         <input
                             type="password"
                             name="password"
                             className="form-input"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
+                            placeholder="Örn: userpassword123"
                             required
                         />
                     </div>
                     <div className="form-group">
-                        <label className="form-label">Şifre (Tekrar)</label>
+                        <label className="form-label">Kurum Şifresi (Tekrar)</label>
                         <input
                             type="password"
                             className="form-input"
                             value={repeatedPassword}
                             onChange={(e) => setRepeatedPassword(e.target.value)}
+                            placeholder="Şifreyi onaylayın"
                             required
                         />
                     </div>

@@ -52,11 +52,12 @@ export default function UserLoginForm() {
 
             <form onSubmit={handleSubmit}>
                 <div className="form-group">
-                    <label className="form-label">Kullanıcı Adı</label>
+                    <label className="form-label">Öğrenci Numarası</label>
                     <input
                         type="text"
                         name="username"
                         className="form-input"
+                        placeholder="Örn: 2206001178"
                         required
                         autoComplete="username"
                     />

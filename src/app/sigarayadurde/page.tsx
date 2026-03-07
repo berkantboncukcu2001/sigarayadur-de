@@ -96,15 +96,21 @@ export default async function DashboardPage() {
                     <p style={{ marginTop: "0.5rem", color: "var(--success)" }}><strong>Bugün Platforma Giriş Yaptınız! ({user.daily_login_count}. giriş)</strong></p>
                 </div>
 
-                <form action={async () => {
-                    "use server";
-                    const cookieHelpers = await cookies();
-                    cookieHelpers.delete("user_token");
-                }}>
-                    <button className="btn-primary" style={{ marginTop: "2rem", width: "auto", padding: "0.5rem 2rem" }}>
-                        Çıkış Yap
-                    </button>
-                </form>
+                <div style={{ display: "flex", gap: "1rem", marginTop: "2rem" }}>
+                    <a href="/sigarayadurde/settings" className="btn-primary" style={{ background: "transparent", border: "1px solid var(--input-border)", color: "white", textDecoration: "none", flex: 1, padding: "0.5rem" }}>
+                        Ayarlar
+                    </a>
+
+                    <form action={async () => {
+                        "use server";
+                        const cookieHelpers = await cookies();
+                        cookieHelpers.delete("user_token");
+                    }} style={{ flex: 1 }}>
+                        <button className="btn-primary" style={{ padding: "0.5rem", width: "100%" }}>
+                            Çıkış Yap
+                        </button>
+                    </form>
+                </div>
             </div>
         </main>
     );

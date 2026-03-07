@@ -58,7 +58,7 @@ export default function UserTable({ users }: { users: any[] }) {
                                     <th style={{ padding: "1rem" }}>Sıra</th>
                                     <th style={{ padding: "1rem" }}>Ad</th>
                                     <th style={{ padding: "1rem" }}>Soy Ad</th>
-                                    <th style={{ padding: "1rem" }}>TC Kimlik No</th>
+                                    <th style={{ padding: "1rem" }}>Öğrenci Numarası</th>
                                     <th style={{ padding: "1rem" }}>Doğum Tarihi / Yaş</th>
                                     <th style={{ padding: "1rem" }}>Cinsiyet</th>
                                     <th style={{ padding: "1rem" }}>Sigaraya Başlama Zamanı</th>

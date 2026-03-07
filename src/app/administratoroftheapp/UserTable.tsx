@@ -31,7 +31,7 @@ export default function UserTable({ users }: { users: any[] }) {
                         <button
                             onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                             disabled={currentPage === 1}
-                            style={{ padding: "0.5rem 1rem", borderRadius: "8px", background: "var(--input-bg)", color: "white", border: "1px solid var(--input-border)", cursor: currentPage === 1 ? "not-allowed" : "pointer" }}
+                            style={{ padding: "0.5rem 1rem", borderRadius: "8px", background: "var(--input-bg)", color: "var(--primary)", border: "1px solid var(--input-border)", cursor: currentPage === 1 ? "not-allowed" : "pointer" }}
                         >
                             &larr;
                         </button>
@@ -39,7 +39,7 @@ export default function UserTable({ users }: { users: any[] }) {
                         <button
                             onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                             disabled={currentPage === totalPages}
-                            style={{ padding: "0.5rem 1rem", borderRadius: "8px", background: "var(--input-bg)", color: "white", border: "1px solid var(--input-border)", cursor: currentPage === totalPages ? "not-allowed" : "pointer" }}
+                            style={{ padding: "0.5rem 1rem", borderRadius: "8px", background: "var(--input-bg)", color: "var(--primary)", border: "1px solid var(--input-border)", cursor: currentPage === totalPages ? "not-allowed" : "pointer" }}
                         >
                             &rarr;
                         </button>

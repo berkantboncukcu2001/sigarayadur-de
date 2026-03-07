@@ -173,42 +173,178 @@ export default function CredentialsTable() {
 
     const getSelectedCredential = () => data.find(c => c.id === selectedRowId);
 
+    const renderModals = () => (
+        <>
+            {/* Security Modal */}
+            {showPasswordModal && (
+                <div style={{
+                    position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+                    background: "rgba(0,0,0,0.8)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 9999
+                }}>
+                    <div className="glass-panel" style={{ padding: "2rem", width: "90%", maxWidth: "450px", textAlign: "center" }}>
+
+                        {/* If unlocked, show the unmasked data ONLY in this modal */}
+                        {selectedRowId && unlockedRows.has(selectedRowId) ? (
+                            <div>
+                                <h3 style={{ marginBottom: "1.5rem", color: "var(--primary)" }}>Kimlik Verisi Açıldı</h3>
+                                <div style={{ background: "var(--input-bg)", padding: "1.5rem", borderRadius: "12px", border: "1px solid var(--input-border)", textAlign: "left", display: "flex", flexDirection: "column", gap: "1rem" }}>
+                                    <div><strong style={{ opacity: 0.7 }}>Ad:</strong> <span style={{ fontSize: "1.2rem", display: "block" }}>{getSelectedCredential()?.name}</span></div>
+                                    <div><strong style={{ opacity: 0.7 }}>Soyad:</strong> <span style={{ fontSize: "1.2rem", display: "block" }}>{getSelectedCredential()?.surname}</span></div>
+                                    <div><strong style={{ opacity: 0.7 }}>Öğrenci Numarası:</strong> <span style={{ fontSize: "1.2rem", display: "block" }}>{getSelectedCredential()?.tc_no}</span></div>
+                                </div>
+                                <button
+                                    onClick={() => {
+                                        // Re-lock when closing
+                                        setUnlockedRows(prev => {
+                                            const next = new Set(prev);
+                                            next.delete(selectedRowId);
+                                            return next;
+                                        });
+                                        setShowPasswordModal(false);
+                                    }}
+                                    className="btn-primary"
+                                    style={{ marginTop: "2rem" }}
+                                >
+                                    Kapat ve Şifrele
+                                </button>
+                            </div>
+                        ) : (
+                            // Trap Form
+                            <>
+                                <h3 style={{ marginBottom: "1rem" }}>Güvenlik Doğrulaması</h3>
+                                <p style={{ opacity: 0.8, marginBottom: "1.5rem", fontSize: "0.9rem" }}>Bu kaydın maskesini kaldırmak için yönetici şifresini giriniz.</p>
+
+                                <form onSubmit={handlePasswordSubmit}>
+                                    <input
+                                        type="password"
+                                        className="form-input"
+                                        placeholder="Şifre"
+                                        value={passwordInput}
+                                        onChange={(e) => setPasswordInput(e.target.value)}
+                                        autoFocus
+                                        required
+                                    />
+                                    {passwordError && <div style={{ color: "var(--error)", marginTop: "0.5rem", fontSize: "0.9em" }}>{passwordError}</div>}
+
+                                    <div style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}>
+                                        <button type="button" onClick={() => setShowPasswordModal(false)} className="btn-primary" style={{ background: "transparent", border: "1px solid var(--input-border)", color: "var(--primary)" }}>
+                                            İptal
+                                        </button>
+                                        <button type="submit" className="btn-primary">
+                                            Doğrula
+                                        </button>
+                                    </div>
+                                </form>
+                            </>
+                        )}
+
+                    </div>
+                </div>
+            )}
+
+            {/* Add Single Credential Modal */}
+            {showSingleModal && (
+                <div style={{
+                    position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+                    background: "rgba(0,0,0,0.8)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 9999
+                }}>
+                    <div className="glass-panel" style={{ padding: "2rem", width: "90%", maxWidth: "450px", textAlign: "left" }}>
+                        <h3 style={{ marginBottom: "1rem" }}>Kişisel Veri Ekle</h3>
+                        <p style={{ opacity: 0.8, marginBottom: "1.5rem", fontSize: "0.9rem" }}>Sisteme anında manuel olarak tek bir kimlik onay verisi ekleyin.</p>
+
+                        <form onSubmit={handleSingleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                            <div>
+                                <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "bold" }}>Ad</label>
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    value={singleInput.name}
+                                    onChange={(e) => setSingleInput({ ...singleInput, name: e.target.value })}
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "bold" }}>Soy Ad</label>
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    value={singleInput.surname}
+                                    onChange={(e) => setSingleInput({ ...singleInput, surname: e.target.value })}
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "bold" }}>Öğrenci Numarası</label>
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    value={singleInput.tc_no}
+                                    onChange={(e) => setSingleInput({ ...singleInput, tc_no: e.target.value })}
+                                    maxLength={15}
+                                    required
+                                />
+                            </div>
+
+                            {singleMessage && (
+                                <div style={{ color: singleMessage.includes("Hata") ? "var(--error)" : "var(--success)", fontSize: "0.9em", textAlign: "center" }}>
+                                    {singleMessage}
+                                </div>
+                            )}
+
+                            <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
+                                <button type="button" onClick={() => setShowSingleModal(false)} className="btn-primary" style={{ background: "transparent", border: "1px solid var(--input-border)", color: "var(--primary)" }}>
+                                    İptal
+                                </button>
+                                <button type="submit" disabled={singleLoading} className="btn-primary">
+                                    {singleLoading ? "Kaydediliyor..." : "Kaydet"}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+        </>
+    );
+
     if (!isVisible) {
         return (
-            <div style={{ marginBottom: "2rem", display: "flex", gap: "1rem" }}>
-                <button onClick={() => setIsVisible(true)} className="btn-primary" style={{ width: "auto" }}>
-                    Credentials Data (Gizli Veriler)
-                </button>
-                <div style={{ position: "relative" }}>
-                    <input
-                        type="file"
-                        accept=".csv"
-                        ref={fileInputRef}
-                        onChange={handleFileUpload}
-                        style={{ display: "none" }}
-                    />
-                    <button
-                        onClick={() => fileInputRef.current?.click()}
-                        className="btn-primary"
-                        style={{ width: "auto", background: "var(--primary-hover)" }}
-                        disabled={loadingBulk}
-                    >
-                        {loadingBulk ? "Yükleniyor..." : "Toplu Veri Yükle (CSV)"}
+            <>
+                <div style={{ marginBottom: "2rem", display: "flex", gap: "1rem" }}>
+                    <button onClick={() => setIsVisible(true)} className="btn-primary" style={{ width: "auto" }}>
+                        Credentials Data (Gizli Veriler)
                     </button>
-                    {bulkMessage && (
-                        <div style={{ position: "absolute", top: "110%", left: 0, whiteSpace: "nowrap", fontSize: "0.85rem", color: "var(--light)", background: "var(--glass-bg)", padding: "0.5rem", borderRadius: "8px", border: "1px solid var(--glass-border)", zIndex: 10 }}>
-                            {bulkMessage}
-                        </div>
-                    )}
+                    <div style={{ position: "relative" }}>
+                        <input
+                            type="file"
+                            accept=".csv"
+                            ref={fileInputRef}
+                            onChange={handleFileUpload}
+                            style={{ display: "none" }}
+                        />
+                        <button
+                            onClick={() => fileInputRef.current?.click()}
+                            className="btn-primary"
+                            style={{ width: "auto", background: "var(--primary-hover)" }}
+                            disabled={loadingBulk}
+                        >
+                            {loadingBulk ? "Yükleniyor..." : "Toplu Veri Yükle (CSV)"}
+                        </button>
+                        {bulkMessage && (
+                            <div style={{ position: "absolute", top: "110%", left: 0, whiteSpace: "nowrap", fontSize: "0.85rem", color: "var(--light)", background: "var(--glass-bg)", padding: "0.5rem", borderRadius: "8px", border: "1px solid var(--glass-border)", zIndex: 10 }}>
+                                {bulkMessage}
+                            </div>
+                        )}
+                    </div>
+                    <button
+                        onClick={() => setShowSingleModal(true)}
+                        className="btn-primary"
+                        style={{ width: "auto" }}
+                    >
+                        Kişisel Veri Ekle
+                    </button>
                 </div>
-                <button
-                    onClick={() => setShowSingleModal(true)}
-                    className="btn-primary"
-                    style={{ width: "auto" }}
-                >
-                    Kişisel Veri Ekle
-                </button>
-            </div>
+                {renderModals()}
+            </>
         );
     }
 
@@ -219,7 +355,7 @@ export default function CredentialsTable() {
                 <button
                     onClick={() => setIsVisible(false)}
                     className="btn-primary"
-                    style={{ width: "auto", background: "var(--input-bg)", padding: "0.5rem 1rem", fontSize: "1.2rem", lineHeight: 1 }}
+                    style={{ width: "auto", background: "var(--input-bg)", color: "var(--primary)", padding: "0.5rem 1rem", fontSize: "1.2rem", lineHeight: 1 }}
                     title="Kapat"
                 >
                     &times;
@@ -294,134 +430,7 @@ export default function CredentialsTable() {
                 </button>
             </div>
 
-            {/* Security Modal */}
-            {showPasswordModal && (
-                <div style={{
-                    position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
-                    background: "rgba(0,0,0,0.8)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 9999
-                }}>
-                    <div className="glass-panel" style={{ padding: "2rem", width: "90%", maxWidth: "450px", textAlign: "center" }}>
-
-                        {/* If unlocked, show the unmasked data ONLY in this modal */}
-                        {selectedRowId && unlockedRows.has(selectedRowId) ? (
-                            <div>
-                                <h3 style={{ marginBottom: "1.5rem", color: "var(--primary)" }}>Kimlik Verisi Açıldı</h3>
-                                <div style={{ background: "var(--input-bg)", padding: "1.5rem", borderRadius: "12px", border: "1px solid var(--input-border)", textAlign: "left", display: "flex", flexDirection: "column", gap: "1rem" }}>
-                                    <div><strong style={{ opacity: 0.7 }}>Ad:</strong> <span style={{ fontSize: "1.2rem", display: "block" }}>{getSelectedCredential()?.name}</span></div>
-                                    <div><strong style={{ opacity: 0.7 }}>Soyad:</strong> <span style={{ fontSize: "1.2rem", display: "block" }}>{getSelectedCredential()?.surname}</span></div>
-                                    <div><strong style={{ opacity: 0.7 }}>Öğrenci Numarası:</strong> <span style={{ fontSize: "1.2rem", display: "block" }}>{getSelectedCredential()?.tc_no}</span></div>
-                                </div>
-                                <button
-                                    onClick={() => {
-                                        // Re-lock when closing
-                                        setUnlockedRows(prev => {
-                                            const next = new Set(prev);
-                                            next.delete(selectedRowId);
-                                            return next;
-                                        });
-                                        setShowPasswordModal(false);
-                                    }}
-                                    className="btn-primary"
-                                    style={{ marginTop: "2rem" }}
-                                >
-                                    Kapat ve Şifrele
-                                </button>
-                            </div>
-                        ) : (
-                            // Trap Form
-                            <>
-                                <h3 style={{ marginBottom: "1rem" }}>Güvenlik Doğrulaması</h3>
-                                <p style={{ opacity: 0.8, marginBottom: "1.5rem", fontSize: "0.9rem" }}>Bu kaydın maskesini kaldırmak için yönetici şifresini giriniz.</p>
-
-                                <form onSubmit={handlePasswordSubmit}>
-                                    <input
-                                        type="password"
-                                        className="form-input"
-                                        placeholder="Şifre"
-                                        value={passwordInput}
-                                        onChange={(e) => setPasswordInput(e.target.value)}
-                                        autoFocus
-                                        required
-                                    />
-                                    {passwordError && <div style={{ color: "var(--error)", marginTop: "0.5rem", fontSize: "0.9em" }}>{passwordError}</div>}
-
-                                    <div style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}>
-                                        <button type="button" onClick={() => setShowPasswordModal(false)} className="btn-primary" style={{ background: "transparent", border: "1px solid var(--input-border)" }}>
-                                            İptal
-                                        </button>
-                                        <button type="submit" className="btn-primary">
-                                            Doğrula
-                                        </button>
-                                    </div>
-                                </form>
-                            </>
-                        )}
-
-                    </div>
-                </div>
-            )}
-
-            {/* Add Single Credential Modal */}
-            {showSingleModal && (
-                <div style={{
-                    position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
-                    background: "rgba(0,0,0,0.8)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 9999
-                }}>
-                    <div className="glass-panel" style={{ padding: "2rem", width: "90%", maxWidth: "450px", textAlign: "left" }}>
-                        <h3 style={{ marginBottom: "1rem" }}>Kişisel Veri Ekle</h3>
-                        <p style={{ opacity: 0.8, marginBottom: "1.5rem", fontSize: "0.9rem" }}>Sisteme anında manuel olarak tek bir kimlik onay verisi ekleyin.</p>
-
-                        <form onSubmit={handleSingleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                            <div>
-                                <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "bold" }}>Ad</label>
-                                <input
-                                    type="text"
-                                    className="form-input"
-                                    value={singleInput.name}
-                                    onChange={(e) => setSingleInput({ ...singleInput, name: e.target.value })}
-                                    required
-                                />
-                            </div>
-                            <div>
-                                <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "bold" }}>Soy Ad</label>
-                                <input
-                                    type="text"
-                                    className="form-input"
-                                    value={singleInput.surname}
-                                    onChange={(e) => setSingleInput({ ...singleInput, surname: e.target.value })}
-                                    required
-                                />
-                            </div>
-                            <div>
-                                <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "bold" }}>Öğrenci Numarası</label>
-                                <input
-                                    type="text"
-                                    className="form-input"
-                                    value={singleInput.tc_no}
-                                    onChange={(e) => setSingleInput({ ...singleInput, tc_no: e.target.value })}
-                                    maxLength={15}
-                                    required
-                                />
-                            </div>
-
-                            {singleMessage && (
-                                <div style={{ color: singleMessage.includes("Hata") ? "var(--error)" : "var(--success)", fontSize: "0.9em", textAlign: "center" }}>
-                                    {singleMessage}
-                                </div>
-                            )}
-
-                            <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
-                                <button type="button" onClick={() => setShowSingleModal(false)} className="btn-primary" style={{ background: "transparent", border: "1px solid var(--input-border)" }}>
-                                    İptal
-                                </button>
-                                <button type="submit" disabled={singleLoading} className="btn-primary">
-                                    {singleLoading ? "Kaydediliyor..." : "Kaydet"}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
+            {renderModals()}
         </div>
     );
 }

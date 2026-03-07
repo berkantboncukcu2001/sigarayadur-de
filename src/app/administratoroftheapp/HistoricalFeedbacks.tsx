@@ -90,7 +90,15 @@ export default function HistoricalFeedbacks({
                 <h2 style={{ margin: 0 }}>Tarihsel Geri Dönütler</h2>
 
                 <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                    <span style={{ fontWeight: 500, opacity: isAiOn ? 0.5 : 1 }}>Manual</span>
+                    {/* Manual Text */}
+                    <span style={{
+                        fontWeight: 500,
+                        color: !isAiOn ? "var(--primary-hover)" : "inherit",
+                        opacity: !isAiOn ? 1 : 0.5,
+                        transition: "all 0.3s"
+                    }}>
+                        Manual
+                    </span>
 
                     {/* Toggle Switch UI */}
                     <label style={{
@@ -109,7 +117,7 @@ export default function HistoricalFeedbacks({
                             position: "absolute",
                             cursor: "pointer",
                             top: 0, left: 0, right: 0, bottom: 0,
-                            backgroundColor: isAiOn ? "var(--primary)" : "var(--input-bg)",
+                            backgroundColor: isAiOn ? "#f97316" : "var(--primary)", /* Orange for AI, Blue for Manual */
                             transition: ".4s",
                             borderRadius: "24px",
                             border: "1px solid var(--input-border)"
@@ -128,7 +136,15 @@ export default function HistoricalFeedbacks({
                         </span>
                     </label>
 
-                    <span style={{ fontWeight: 500, color: isAiOn ? "var(--primary-hover)" : "inherit", opacity: isAiOn ? 1 : 0.5 }}>AI Called Auto</span>
+                    {/* AI Text */}
+                    <span style={{
+                        fontWeight: 500,
+                        color: isAiOn ? "#f97316" : "inherit", /* Orange text if on */
+                        opacity: isAiOn ? 1 : 0.5,
+                        transition: "all 0.3s"
+                    }}>
+                        AI Called Auto
+                    </span>
                 </div>
             </div>
 

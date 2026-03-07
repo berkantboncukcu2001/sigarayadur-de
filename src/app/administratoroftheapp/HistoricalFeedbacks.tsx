@@ -90,13 +90,23 @@ export default function HistoricalFeedbacks({
                 <h2 style={{ margin: 0 }}>Tarihsel Geri Dönütler</h2>
 
                 <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                    {/* Manual Text */}
-                    <span style={{
-                        fontWeight: 500,
-                        color: !isAiOn ? "var(--primary-hover)" : "inherit",
-                        opacity: !isAiOn ? 1 : 0.5,
-                        transition: "all 0.3s"
-                    }}>
+                    {/* Manual Button */}
+                    <span
+                        onClick={() => { if (isAiOn) handleAiToggle(); }}
+                        style={{
+                            padding: "0.4rem 0.8rem",
+                            borderRadius: "8px",
+                            fontWeight: 500,
+                            backgroundColor: !isAiOn ? "var(--primary)" : "transparent",
+                            color: !isAiOn ? "white" : "inherit",
+                            opacity: !isAiOn ? 1 : 0.6,
+                            boxShadow: !isAiOn ? "inset 0 3px 6px rgba(0,0,0,0.4)" : "none",
+                            transform: !isAiOn ? "translateY(2px)" : "none",
+                            border: "1px solid",
+                            borderColor: !isAiOn ? "transparent" : "var(--input-border)",
+                            cursor: "pointer",
+                            transition: "all 0.3s"
+                        }}>
                         Manual
                     </span>
 
@@ -120,7 +130,8 @@ export default function HistoricalFeedbacks({
                             backgroundColor: isAiOn ? "#f97316" : "var(--primary)", /* Orange for AI, Blue for Manual */
                             transition: ".4s",
                             borderRadius: "24px",
-                            border: "1px solid var(--input-border)"
+                            border: "1px solid var(--input-border)",
+                            boxShadow: "inset 0 1px 3px rgba(0,0,0,0.2)"
                         }}>
                             <span style={{
                                 position: "absolute",
@@ -131,18 +142,29 @@ export default function HistoricalFeedbacks({
                                 bottom: "3px",
                                 backgroundColor: "white",
                                 transition: ".4s",
-                                borderRadius: "50%"
+                                borderRadius: "50%",
+                                boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
                             }} />
                         </span>
                     </label>
 
-                    {/* AI Text */}
-                    <span style={{
-                        fontWeight: 500,
-                        color: isAiOn ? "#f97316" : "inherit", /* Orange text if on */
-                        opacity: isAiOn ? 1 : 0.5,
-                        transition: "all 0.3s"
-                    }}>
+                    {/* AI Button */}
+                    <span
+                        onClick={() => { if (!isAiOn) handleAiToggle(); }}
+                        style={{
+                            padding: "0.4rem 0.8rem",
+                            borderRadius: "8px",
+                            fontWeight: 500,
+                            backgroundColor: isAiOn ? "#f97316" : "transparent", /* Orange background when clicked */
+                            color: isAiOn ? "white" : "inherit",
+                            opacity: isAiOn ? 1 : 0.6,
+                            boxShadow: isAiOn ? "inset 0 3px 6px rgba(0,0,0,0.4)" : "none",
+                            transform: isAiOn ? "translateY(2px)" : "none",
+                            border: "1px solid",
+                            borderColor: isAiOn ? "transparent" : "var(--input-border)",
+                            cursor: "pointer",
+                            transition: "all 0.3s"
+                        }}>
                         AI Called Auto
                     </span>
                 </div>

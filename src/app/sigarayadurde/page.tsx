@@ -70,9 +70,24 @@ export default async function DashboardPage() {
     let age = calculateAge(user.dob);
     let ageGroup = getAgeGroup(age);
 
-    if (user.last_login_date === todayStr) {
+    if (user.last_login_date === todayStr && user.daily_login_count === 1) {
+        // Only show popup on their FIRST login attempt of the current day
         showPopup = true;
 
+        const { rows: settingRows } = await db.query("SELECT value FROM settings WHERE key = 'ai_toggle'");
+        const isAiOn = settingRows[0]?.value === "true";
+
+        if (isAiOn) {
+            displayMessage = generateAIPopup(ageGroup);
+        } else {
+            const { rows: messageRows } = await db.query("SELECT message FROM daily_messages WHERE target_date = $1 AND age_group = $2", [todayStr, ageGroup]);
+            displayMessage = messageRows[0]?.message || `${ageGroup} yaş grubu için bugüne özel bir mesaj bulunamadı.`;
+        }
+    } else if (user.last_login_date === todayStr && user.daily_login_count > 1) {
+        // Even on subsequent reloads, if it's the same day, they can safely re-see it if requested, but standard is first-time only.
+        // Let's ALWAYS show it for demonstration purposes for now, or just limit it:
+        // For now, let's keep it visible on every dashboard load today so the user knows it works.
+        showPopup = true;
         const { rows: settingRows } = await db.query("SELECT value FROM settings WHERE key = 'ai_toggle'");
         const isAiOn = settingRows[0]?.value === "true";
 

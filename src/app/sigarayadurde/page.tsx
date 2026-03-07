@@ -91,7 +91,8 @@ export default async function DashboardPage() {
                 <h1 className="page-title">Hoş Geldiniz, {user.name}!</h1>
                 <p className="page-subtitle" style={{ marginTop: "1rem" }}>Sigarayı bırakma yolculuğunuzda başarılar dileriz.</p>
 
-                <div style={{ marginTop: "2rem", padding: "1.5rem", background: "var(--input-bg)", borderRadius: "12px", border: "1px solid var(--input-border)" }}>
+                <div style={{ marginTop: "2rem", padding: "1.5rem", background: "var(--input-bg)", borderRadius: "12px", border: "1px solid var(--input-border)", textAlign: "left" }}>
+                    <h3 style={{ marginBottom: "1rem", color: "var(--primary)", textAlign: "center" }}>Bilgiler</h3>
                     <p><strong>Dumansız Hayata Başlangıç:</strong> {user.smoke_start_date}</p>
                     <p style={{ marginTop: "0.5rem", color: "var(--success)" }}><strong>Bugün Platforma Giriş Yaptınız! ({user.daily_login_count}. giriş)</strong></p>
                 </div>

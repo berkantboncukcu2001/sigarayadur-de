@@ -113,7 +113,7 @@ export default async function DashboardPage() {
                 </div>
 
                 <div style={{ display: "flex", gap: "1rem", marginTop: "2rem" }}>
-                    <a href="/sigarayadurde/settings" className="btn-primary" style={{ background: "transparent", border: "1px solid var(--input-border)", color: "white", textDecoration: "none", flex: 1, padding: "0.5rem" }}>
+                    <a href="/sigarayadurde/settings" className="btn-primary" style={{ background: "transparent", border: "1px solid var(--input-border)", color: "var(--primary)", textDecoration: "none", flex: 1, padding: "0.5rem" }}>
                         Ayarlar
                     </a>
 

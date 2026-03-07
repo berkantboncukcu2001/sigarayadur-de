@@ -23,7 +23,7 @@ export default async function SettingsPage() {
             <div className="glass-panel" style={{ maxWidth: "600px", margin: "10vh auto" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <h1 className="page-title" style={{ margin: 0 }}>Ayarlar</h1>
-                    <a href="/sigarayadurde" className="btn-primary" style={{ width: "auto", background: "var(--input-bg)", textDecoration: "none", color: "white", padding: "0.2rem 0.8rem", border: "1px solid var(--input-border)", fontSize: "1.5rem", lineHeight: 1 }} title="Kapat">
+                    <a href="/sigarayadurde" className="btn-primary" style={{ width: "auto", background: "var(--input-bg)", textDecoration: "none", color: "var(--primary)", padding: "0.2rem 0.8rem", border: "1px solid var(--input-border)", fontSize: "1.5rem", lineHeight: 1 }} title="Kapat">
                         &times;
                     </a>
                 </div>
